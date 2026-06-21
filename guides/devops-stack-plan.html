@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShopFlow — DevOps Stack Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #0f1115;
+  --paper: #f6f5f1;
+  --blue: #0b5fff;
+  --blue-soft: #eaf1ff;
+  --orange: #d9480f;
+  --orange-soft: #fdf0e8;
+  --green: #1b8a5a;
+  --green-soft: #e8f7ef;
+  --purple: #6741d9;
+  --purple-soft: #f0ecfb;
+  --amber: #b8860b;
+  --amber-soft: #fbf3e0;
+  --red: #c92a2a;
+  --red-soft: #fbeaea;
+  --muted: #696e79;
+  --border: #dedad2;
+  --surface: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.65; }
+
+.hero { background: var(--ink); color: white; padding: 76px 60px 56px; position: relative; }
+.hero::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 56px; background: var(--paper); clip-path: ellipse(55% 100% at 50% 100%); }
+.hero-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #ff9d5c; margin-bottom: 18px; }
+.hero h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: clamp(36px, 6vw, 62px); line-height: 1.08; max-width: 800px; margin-bottom: 20px; }
+.hero h1 em { color: var(--orange); font-style: italic; }
+.hero p { font-size: 17px; color: #aab1c0; max-width: 600px; }
+.hero-stats { display: flex; gap: 32px; margin-top: 40px; flex-wrap: wrap; }
+.hero-stats .val { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: white; }
+.hero-stats .lbl { font-size: 10px; color: #7b8190; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+
+.container { max-width: 1040px; margin: 0 auto; padding: 0 40px; }
+section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+section:last-child { border-bottom: none; }
+.eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; }
+h2 { font-family: 'Fraunces', serif; font-size: clamp(24px, 4vw, 36px); font-weight: 700; margin-bottom: 16px; line-height: 1.15; }
+h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+p { margin-bottom: 14px; color: #2a2d33; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--ink); }
+code.inline { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #ece9e2; padding: 2px 7px; border-radius: 5px; color: #b8420b; }
+
+.note { background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 20px 0; font-size: 14.5px; }
+.note.warn { background: var(--amber-soft); border-color: var(--amber); }
+.note.good { background: var(--green-soft); border-color: var(--green); }
+.note.risk { background: var(--red-soft); border-color: var(--red); }
+.analogy { background: #fff8ef; border-left: 4px solid var(--orange); border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 20px 0; font-size: 14.5px; font-style: italic; color: #5a3a1a; }
+.analogy strong { color: var(--orange); font-style: normal; }
+
+table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+th { background: var(--ink); color: white; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--blue); font-weight: 500; white-space: nowrap; }
+tr:nth-child(even) td { background: #fbfafa; }
+
+.layer { margin: 28px 0; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.layer-head { padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.layer-head h3 { margin: 0; font-size: 16px; }
+.layer-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: white; background: var(--ink); padding: 3px 10px; border-radius: 100px; }
+.layer-body { padding: 4px 22px 22px; }
+
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; margin-top: 14px; }
+.tool-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: #fcfbf9; }
+.tool-card .name { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
+.tool-card .role { font-size: 12.5px; color: var(--muted); }
+.tool-card .tier-tag { display:inline-block; font-size: 10px; font-family:'JetBrains Mono',monospace; padding: 2px 7px; border-radius: 4px; margin-top: 8px; }
+.tag-infra { background: var(--purple-soft); color: var(--purple); }
+.tag-orch  { background: var(--blue-soft); color: var(--blue); }
+.tag-ci    { background: var(--orange-soft); color: var(--orange); }
+.tag-mon   { background: var(--green-soft); color: var(--green); }
+.tag-sec   { background: var(--red-soft); color: var(--red); }
+
+.phase { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.phase:last-child { border-bottom: none; }
+.phase-num { width: 56px; height: 56px; border-radius: 12px; background: var(--ink); color: white; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+.phase h4 { font-size: 16px; margin-bottom: 4px; }
+.phase .tools-used { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--orange); margin-top: 8px; }
+.phase p { font-size: 14px; margin: 4px 0 0; }
+
+.cost-bar { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.cost-bar .label { font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 170px; flex-shrink: 0; }
+.cost-bar .bar-track { flex: 1; height: 8px; background: #ece9e2; border-radius: 100px; overflow: hidden; }
+.cost-bar .bar-fill { height: 100%; border-radius: 100px; }
+.cost-bar .amount { font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 80px; text-align: right; color: var(--muted); }
+
+.footer { background: var(--ink); color: #767c8a; padding: 32px 60px; font-family: 'JetBrains Mono', monospace; font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.footer span { color: var(--orange); }
+
+@media print { .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; } section { break-inside: avoid; } }
+@media (max-width: 640px) { .hero { padding: 48px 24px 56px; } .container { padding: 0 22px; } .footer { padding: 28px 22px; flex-direction: column; text-align: center; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">DevOps Stack Plan · Phase 2 · Feynman Edition</div>
+  <h1>ShopFlow<br/>Full <em>DevOps</em><br/>Stack Plan</h1>
+  <p>The complete toolchain plan for ShopFlow — explained the Feynman way: every tool tied to a simple, real-world analogy, so future-you can re-read this in six months and still instantly remember what each piece does and why it's there.</p>
+  <div class="hero-stats">
+    <div><div class="val">5</div><div class="lbl">Stack Layers</div></div>
+    <div><div class="val">11</div><div class="lbl">Tools</div></div>
+    <div><div class="val">EC2</div><div class="lbl">Not EKS</div></div>
+    <div><div class="val">7</div><div class="lbl">Build Phases</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <section>
+    <div class="eyebrow">00 — The Constraint That Shapes Everything</div>
+    <h2>Why kOps-on-EC2, Not EKS</h2>
+    <p>Your toolchain — <strong>kOps + Terraform + Jenkins + Prometheus/Grafana + Istio + Trivy</strong> — is a legitimate, real-world DevOps stack. But it has to be scoped honestly against AWS Free Tier, or it'll either fail to deploy or quietly rack up charges.</p>
+
+    <div class="analogy"><strong>In one sentence:</strong> EKS is renting an already-built franchise kitchen — fast to start, but you pay a monthly premium for someone else's building. kOps is buying the land and building your own kitchen — more setup work, but you only pay for the land itself.</div>
+
+    <div class="note risk">
+      <strong>The single biggest cost trap:</strong> AWS EKS (managed Kubernetes) costs <strong>$0.10/hour for the control plane alone</strong> — about $73/month — with zero free tier coverage. That's why we're using <strong>kOps</strong> instead: it provisions and runs Kubernetes <em>yourself</em>, on plain EC2 instances, where the only cost is the EC2 instances themselves (which Free Tier partially covers).
+    </div>
+
+    <p>Free Tier gives you <strong>750 hours/month of a single t2.micro or t3.micro instance</strong> for 12 months. That's enough to run ONE instance 24/7 for a month — not enough for a full multi-node Kubernetes cluster running continuously. Here's the realistic budget picture:</p>
+
+    <div class="cost-bar"><span class="label">1x t3.micro (free tier)</span><div class="bar-track"><div class="bar-fill" style="width:8%; background:var(--green);"></div></div><span class="amount">$0</span></div>
+    <div class="cost-bar"><span class="label">kOps cluster (1 master + 2 nodes)</span><div class="bar-track"><div class="bar-fill" style="width:55%; background:var(--orange);"></div></div><span class="amount">~$25-40/mo</span></div>
+    <div class="cost-bar"><span class="label">EKS control plane only</span><div class="bar-track"><div class="bar-fill" style="width:100%; background:var(--red);"></div></div><span class="amount">~$73/mo</span></div>
+
+    <div class="note good">
+      <strong>Our approach:</strong> Build and fully test everything locally with Docker Compose first (zero cost, unlimited iteration). Then provision a <em>minimal</em> kOps cluster on AWS — 1 master + 1-2 small worker nodes — run it just long enough to demonstrate and validate the full stack, then tear it down with Terraform. This is exactly how real teams behave in a learning/demo context: build local, prove it on real infra in short deliberate bursts, destroy when done.
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">The Big Picture — One Analogy For Everything</div>
+    <h2>Think of It as Opening a Restaurant</h2>
+    <div class="analogy">
+      <strong>Docker</strong> is packing each recipe into a sealed, ready-to-cook meal kit — anyone, anywhere, can prepare it identically.<br/><br/>
+      <strong>Docker Compose</strong> is your home kitchen counter, where you lay out and test all the meal kits together before opening night.<br/><br/>
+      <strong>Terraform</strong> is the blueprint and paperwork for the restaurant building itself — the plot of land, plumbing, electrical — drawn up once so it can be built (or demolished) identically every time.<br/><br/>
+      <strong>kOps</strong> is the construction crew that actually builds the restaurant from that blueprint, on real land (EC2), instead of renting an already-built franchise location (which is what EKS would be — faster, but you pay a premium for someone else's building).<br/><br/>
+      <strong>Kubernetes</strong> is the restaurant's manager on the floor — making sure enough cooks are working each station, replacing anyone who collapses, seating customers at the right tables.<br/><br/>
+      <strong>Istio</strong> is the radio headset every staff member wears — so the kitchen, waiters, and cashier can talk to each other reliably and securely, and the manager can listen in on any conversation if needed.<br/><br/>
+      <strong>Jenkins</strong> is the prep cook who, every time a new recipe card comes in, automatically tests it, cooks a sample, and sends it to the pass.<br/><br/>
+      <strong>Trivy</strong> is the food safety inspector who checks every ingredient batch for contamination before it's allowed anywhere near the kitchen.<br/><br/>
+      <strong>ArgoCD</strong> is the glass wall between the kitchen and dining room — you can see exactly what's cooking right now versus what the menu (Git) says should be cooking, without that glass wall actually cooking anything itself.<br/><br/>
+      <strong>Prometheus</strong> is the row of thermometers and timers in the kitchen, constantly recording temperatures and cook times.<br/><br/>
+      <strong>Grafana</strong> is the dashboard on the wall that turns all those thermometer readings into a clean display anyone can glance at and understand.
+    </div>
+    <p>Keep this one picture in your head as you read everything below. Every section that follows just zooms into one corner of this restaurant in more technical detail.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">01 — The Five Layers</div>
+    <h2>How the Tools Stack on Top of Each Other</h2>
+    <p>Each layer depends on the one below it. We build bottom-up — there's no point setting up monitoring before there's a cluster to monitor, and no point provisioning a cluster before the containers it'll run actually exist.</p>
+
+    <div class="tool-grid">
+      <div class="tool-card"><div class="name">Docker</div><div class="role">Packages each of the 8 services into a portable image</div><span class="tier-tag tag-orch">Containerization</span></div>
+      <div class="tool-card"><div class="name">Docker Compose</div><div class="role">Local orchestration - multi-container dev environment</div><span class="tier-tag tag-orch">Containerization</span></div>
+      <div class="tool-card"><div class="name">Terraform</div><div class="role">Provisions AWS infra - VPC, subnets, IAM, EC2 - as code</div><span class="tier-tag tag-infra">Infrastructure</span></div>
+      <div class="tool-card"><div class="name">kOps</div><div class="role">Stands up a real Kubernetes cluster on that EC2 infra</div><span class="tier-tag tag-infra">Infrastructure</span></div>
+      <div class="tool-card"><div class="name">Kubernetes</div><div class="role">Runs, scales, and self-heals all 8 containerized services</div><span class="tier-tag tag-orch">Orchestration</span></div>
+      <div class="tool-card"><div class="name">Istio</div><div class="role">Service mesh - traffic routing, retries, mTLS between services</div><span class="tier-tag tag-orch">Orchestration</span></div>
+      <div class="tool-card"><div class="name">Jenkins</div><div class="role">Automates build, test, image push, deploy on every commit</div><span class="tier-tag tag-ci">CI/CD</span></div>
+      <div class="tool-card"><div class="name">ArgoCD</div><div class="role">Watches the cluster's actual state and visualizes it against desired manifests</div><span class="tier-tag tag-ci">CI/CD</span></div>
+      <div class="tool-card"><div class="name">Trivy</div><div class="role">Scans every image for known vulnerabilities before deploy</div><span class="tier-tag tag-sec">Security</span></div>
+      <div class="tool-card"><div class="name">Prometheus</div><div class="role">Scrapes and stores metrics from every service and the cluster</div><span class="tier-tag tag-mon">Monitoring</span></div>
+      <div class="tool-card"><div class="name">Grafana</div><div class="role">Visualizes Prometheus data as dashboards</div><span class="tier-tag tag-mon">Monitoring</span></div>
+    </div>
+  </section>
+
+  <div class="layer">
+    <div class="layer-head" style="background:var(--blue-soft);">
+      <h3>Layer 1 - Containerization</h3>
+      <span class="layer-num">Docker - Compose</span>
+    </div>
+    <div class="layer-body">
+      <div class="analogy"><strong>In one sentence:</strong> Docker is a meal kit — everything needed to cook the dish is sealed inside, so it cooks the same way in any kitchen.</div>
+      <p><strong>Goal:</strong> every one of the 8 services + MySQL runs as a container, all wired together with one <code class="inline">docker-compose.yml</code>, entirely on your laptop. No AWS involved yet - this is where 90% of debugging happens, and it's free and fast to iterate on.</p>
+      <p><strong>Output:</strong> 9 Dockerfiles, 1 docker-compose.yml, full local smoke test passing (the same register, browse, cart, checkout, order flow you already verified, now containerized).</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-head" style="background:var(--purple-soft);">
+      <h3>Layer 2 - Infrastructure as Code</h3>
+      <span class="layer-num">Terraform</span>
+    </div>
+    <div class="layer-body">
+      <div class="analogy"><strong>In one sentence:</strong> Terraform is an architect's blueprint — write it once, and you can build the exact same building (or tear it down completely) any number of times.</div>
+      <p><strong>Goal:</strong> define the AWS infrastructure kOps needs (VPC, subnets, an S3 bucket for cluster state, IAM roles, Route53 hosted zone) as Terraform code instead of clicking through the AWS console - so it's reproducible and destroyable in one command.</p>
+      <div class="note">
+        <strong>Why Terraform even with kOps?</strong> kOps itself provisions the actual EC2 instances for the cluster. Terraform's job is everything kOps needs <em>before</em> it can run - the S3 state bucket, IAM permissions, and (optionally) the VPC if you don't want kOps managing networking itself.
+      </div>
+      <p><strong>Output:</strong> a <code class="inline">terraform/</code> directory with reproducible AWS infra, and a working <code class="inline">terraform destroy</code> that tears it all down cleanly - critical for free-tier cost control.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-head" style="background:var(--blue-soft);">
+      <h3>Layer 3 - Cluster &amp; Orchestration</h3>
+      <span class="layer-num">kOps - Kubernetes - Istio</span>
+    </div>
+    <div class="layer-body">
+      <div class="analogy"><strong>In one sentence:</strong> Kubernetes is a restaurant floor manager — always making sure the right number of cooks are at each station, swapping in a replacement instantly if one collapses.</div>
+      <p><strong>Goal:</strong> stand up a real, minimal Kubernetes cluster using kOps on the EC2 infra Terraform created, then deploy all 8 services as proper K8s objects - Deployments, Services, ConfigMaps, Secrets - replacing what Docker Compose did locally.</p>
+      <table>
+        <tr><th>Object</th><th>Replaces</th></tr>
+        <tr><td>Deployment</td><td>each service's container, with replica count and restart behavior</td></tr>
+        <tr><td>Service</td><td>container-name networking - K8s gives each Deployment a stable internal DNS name</td></tr>
+        <tr><td>ConfigMap / Secret</td><td>the .env files - non-secret and secret values split apart properly</td></tr>
+        <tr><td>Ingress</td><td>the API Gateway's job at the cluster edge - routes external traffic in</td></tr>
+      </table>
+      <div class="analogy"><strong>In one sentence:</strong> Istio is the radio headset every staff member wears — kitchen, waiters, and cashier can talk to each other reliably and securely, without shouting across the room.</div>
+      <p><strong>Istio's role:</strong> once services are running in K8s, Istio sits alongside them as a sidecar proxy on every pod - giving us automatic retries, circuit breaking, and encrypted (mTLS) traffic between services, without changing application code.</p>
+      <div class="note warn">
+        <strong>Scope honestly:</strong> Istio has real memory overhead per pod. On a minimal 1-2 node free-tier-adjacent cluster, we'll deploy Istio in its lightweight profile and likely run it only for a subset of services (e.g., Order, Payment, Notification) to demonstrate mesh behavior without exhausting cluster resources.
+      </div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-head" style="background:var(--orange-soft);">
+      <h3>Layer 4 - CI/CD, Deployment Visibility &amp; Security Gate</h3>
+      <span class="layer-num">Jenkins - ArgoCD - Trivy</span>
+    </div>
+    <div class="layer-body">
+      <div class="analogy"><strong>In one sentence:</strong> Jenkins is the prep cook who tests every new recipe automatically; Trivy is the food safety inspector checking ingredients for contamination; ArgoCD is the glass kitchen wall letting you watch what's actually cooking.</div>
+      <p><strong>Goal:</strong> every code change automatically goes through build, scan, push, deploy - without you manually running any of those steps. ArgoCD then gives you a live, visual picture of what's actually running in the cluster versus what your manifests say should be running.</p>
+      <div class="note">
+        <strong>Pipeline shape (per service):</strong><br/>
+        1. Jenkins detects a git push &rarr; 2. builds the Docker image &rarr; 3. <strong>Trivy scans it</strong> for known CVEs &rarr; 4. if scan passes, push image to registry (Docker Hub or ECR) &rarr; 5. Jenkins runs <code class="inline">kubectl apply</code> to deploy the updated Deployment to the cluster.
+      </div>
+      <div class="note warn">
+        <strong>Where ArgoCD fits here:</strong> we're deliberately keeping Jenkins as the one tool doing the actual deploying (step 5 above) - that's a choice, not a limitation. ArgoCD runs alongside as an <em>observability layer for deployments</em>: it continuously compares your Git-stored K8s manifests against the cluster's live state and shows you, in its UI, whether they match ("Synced") or have drifted ("OutOfSync") - without ArgoCD itself triggering any deploys. This is a common stepping stone before teams fully commit to GitOps (where ArgoCD would take over deployment entirely).
+      </div>
+      <p><strong>Why Trivy specifically here:</strong> it's a free, fast, open-source scanner that checks both OS packages and language dependencies (npm, pip, go modules) in one pass - a natural fit as a Jenkins pipeline stage that can <em>fail the build</em> if critical vulnerabilities are found, rather than just reporting them after the fact.</p>
+      <p><strong>Output:</strong> one Jenkinsfile per service (or one parameterized pipeline for all 8), running on a small Jenkins instance - itself just another container. ArgoCD is installed once into the cluster and pointed at the same Git repo holding your K8s manifests, giving you a single dashboard to watch all 8 services' deployment state.</p>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="layer-head" style="background:var(--green-soft);">
+      <h3>Layer 5 - Observability</h3>
+      <span class="layer-num">Prometheus - Grafana</span>
+    </div>
+    <div class="layer-body">
+      <div class="analogy"><strong>In one sentence:</strong> Prometheus is a row of thermometers constantly recording the kitchen's temperatures; Grafana is the wall display that turns those raw readings into something a human can glance at and understand.</div>
+      <p><strong>Goal:</strong> see what's actually happening inside the running cluster - request rates, error rates, latency, pod health, resource usage - without manually checking logs in 8 different places.</p>
+      <table>
+        <tr><th>Tool</th><th>Job</th></tr>
+        <tr><td>Prometheus</td><td>Periodically "scrapes" a metrics endpoint from every service and the cluster itself, storing it as time-series data</td></tr>
+        <tr><td>Grafana</td><td>Reads Prometheus's data and renders it as dashboards - request volume per service, error rates, CPU/memory per pod</td></tr>
+      </table>
+      <p>We already built a <code class="inline">/health/all</code> endpoint in the Gateway - Prometheus complements that by tracking trends <em>over time</em>, not just a point-in-time check. We'll add a lightweight <code class="inline">/metrics</code> endpoint to each backend service so Prometheus has something real to scrape.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="eyebrow">02 — Build Order</div>
+    <h2>The 7 Phases, In Sequence</h2>
+    <p>Same principle as the microservices build - bottom-up, one phase fully working before the next begins. Each phase has a clear "done" signal before we move on.</p>
+
+    <div class="phase">
+      <div class="phase-num">1</div>
+      <div><h4>Containerize everything locally</h4><p>Dockerfile per service, one docker-compose.yml, full smoke test passing on your laptop. Zero AWS cost.</p><div class="tools-used">docker - docker-compose</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">2</div>
+      <div><h4>Provision base AWS infra</h4><p>VPC, S3 state bucket, IAM roles - written and applied as Terraform. Confirm <code class="inline">terraform destroy</code> cleanly removes everything before moving on.</p><div class="tools-used">terraform</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">3</div>
+      <div><h4>Stand up the kOps cluster</h4><p>A minimal cluster - 1 master, 1-2 small workers - running on the Terraform-provisioned EC2 capacity. Confirm <code class="inline">kubectl get nodes</code> shows everything Ready.</p><div class="tools-used">kops - kubectl</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">4</div>
+      <div><h4>Deploy all 8 services to the cluster</h4><p>Convert docker-compose services into K8s Deployments + Services + ConfigMaps/Secrets. Re-run the same end-to-end smoke test - now against the cluster.</p><div class="tools-used">kubernetes</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">5</div>
+      <div><h4>Layer in Istio for a subset of services</h4><p>Install Istio, enable sidecar injection for Order/Payment/Notification, demonstrate retries and mTLS working between them.</p><div class="tools-used">istio</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">6</div>
+      <div><h4>Wire up Jenkins + Trivy pipeline, install ArgoCD</h4><p>One working pipeline (start with Auth Service as the pilot) that builds, scans, and deploys automatically on a git push. Then replicate the pattern to the rest. Separately, install ArgoCD into the cluster and point it at the manifests repo to get a live sync-status dashboard.</p><div class="tools-used">jenkins - trivy - argocd</div></div>
+    </div>
+    <div class="phase">
+      <div class="phase-num">7</div>
+      <div><h4>Install Prometheus + Grafana, build dashboards</h4><p>Cluster-wide metrics scraping, plus per-service <code class="inline">/metrics</code> endpoints. One Grafana dashboard showing the health of the whole ShopFlow system at a glance.</p><div class="tools-used">prometheus - grafana</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">03 — Cost Discipline</div>
+    <h2>Keeping This Inside Free Tier</h2>
+    <table>
+      <tr><th>Practice</th><th>Why It Matters</th></tr>
+      <tr><td>terraform destroy</td><td>Run it after every demo/test session - don't leave EC2 instances running idle overnight</td></tr>
+      <tr><td>Single small instance type</td><td>t3.micro/t3.small only - never reach for larger instance types out of convenience</td></tr>
+      <tr><td>Minimal node count</td><td>1 master + 1-2 workers is enough to prove the architecture; we're not load-testing production traffic</td></tr>
+      <tr><td>AWS Budgets alert</td><td>Set a $5-10 billing alarm in AWS Budgets on day one, before provisioning anything</td></tr>
+      <tr><td>Jenkins as a container, not a dedicated box</td><td>Run it on the same cluster/instance rather than provisioning separate infrastructure for it</td></tr>
+      <tr><td>ArgoCD in lightweight mode</td><td>Its default install includes a UI + Redis + repo-server + controller - fine on our small cluster, but skip the (optional) heavier HA installation profile</td></tr>
+    </table>
+    <div class="note good">
+      <strong>The mental model:</strong> treat the AWS cluster like a stage you rent by the hour for a rehearsal - build and perfect everything offline (locally) for free, then rent the stage briefly to prove it works for real, and give it back the moment you're done.
+    </div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <div>ShopFlow Microservices - <span>DevOps Stack Plan · Feynman Edition</span></div>
+  <div>Next: Phase 1 - Dockerize all 8 services locally</div>
+</div>
+
+</body>
+</html>
