@@ -6,6 +6,8 @@ This is the microservices Project using different tech stack.
 
 	1. Frontend localhosthost:8000 url dependency -- D
 		Ans: We will be specifying the domain url in realtime Production Environment
+
+                I have mitigated this problem by changing the code inside react frontend client.js
 	2. Size of images are high -- InProgress
 	3. Mysql is not getting started properly
 		Ans: we have to give the init folder path /mysql-init and that folder should be in the      compose file path. MySQL will automatically execute the sql commands present under 01-create-databases.sql file,present inside that folder.
