@@ -41,9 +41,9 @@ auth-service/auth-service
 *.exe
 
 # ── Environment files — NEVER commit secrets ──
-.env
-.env.*
-!.env.example
+# .env
+# .env.*
+# !.env.example
 
 # ── OS junk files ──
 .DS_Store
