@@ -13,7 +13,6 @@
 # guest (container) in the right place, introduces them to each other by
 # name (the network), and serves dinner in the right order automatically.
 
-version: "3.9"
 
 # ── NETWORK ───────────────────────────────────────────────────────────────────
 # Every container below joins this one shared network. Once they're on the
@@ -207,7 +206,7 @@ services:
       ORDER_SERVICE_URL: http://order-service:8003
       PAYMENT_SERVICE_URL: http://payment-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8005
-      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:4200
+      ALLOWED_ORIGINS: http://65.0.105.148:3000,http://65.0.105.148:4200,http://localhost:3000,http://localhost:4200
     ports:
       - "8000:8000"
     networks:
@@ -227,7 +226,7 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_API_URL: http://localhost:8000
+        REACT_APP_API_URL: http://65.0.105.148:8000
     container_name: shopflow-frontend
     restart: unless-stopped
     ports:
@@ -239,8 +238,12 @@ services:
 
   # ── ANGULAR ADMIN DASHBOARD ──────────────────────────────────────────────
   admin-dashboard:
-    build: ./admin-dashboard
+    build: 
+      context: ./admin-dashboard
+      args:
+        API_URL: http://65.0.105.148:8000
     container_name: shopflow-admin-dashboard
+    
     restart: unless-stopped
     ports:
       - "4200:80"

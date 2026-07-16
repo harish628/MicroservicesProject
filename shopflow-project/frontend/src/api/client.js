@@ -20,16 +20,18 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Commenting below to mitigate CORS issues when running frontend and backend on different ports during development.
-// const apiClient = axios.create({
-//   baseURL: API_URL,
-//   headers: { 'Content-Type': 'application/json' },
-// });
 const apiClient = axios.create({
-    baseURL: API_URL,
-    headers: { 
-        'Content-Type': 'application/json' 
-    },
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
 });
+
+//Testing
+// const apiClient = axios.create({
+//     baseURL: API_URL,
+//     headers: { 
+//         'Content-Type': 'application/json' 
+//     },
+// });
 
 // ── REQUEST INTERCEPTOR ───────────────────────────────────────────────────
 // Runs before every single request leaves the browser.

@@ -29,6 +29,10 @@ COPY . .
 # different API URL for a different deployment, edit environment.prod.ts
 # directly before building, or set up Angular's file-replacement system
 # for multiple environment configs (a future enhancement, not needed yet).
+ARG API_URL
+ENV API_URL=$API_URL
+
+RUN sed -i "s|http://localhost:8000|$API_URL|g" src/environments/environment.prod.ts
 
 RUN npm run build
 

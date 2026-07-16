@@ -43,7 +43,7 @@ COPY . .
 # are permanently embedded into the compiled JS during this build step.
 # If you need to point at a different API URL later, you must REBUILD this
 # image — you cannot just change an environment variable at container runtime.
-ARG REACT_APP_API_URL=http://localhost:8000
+ARG REACT_APP_API_URL
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 RUN npm run build
