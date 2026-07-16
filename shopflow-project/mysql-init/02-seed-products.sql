@@ -62,3 +62,5 @@ INSERT INTO products (name, description, price, image_url, stock, is_active, cat
 ('Adjustable Dumbbell Set', 'Space-saving adjustable dumbbells, 2.5kg to 20kg per side, with quick-lock mechanism.', 7499.00, 'https://picsum.photos/id/210/600/600', 12, TRUE, 5, NOW()),
 ('Resistance Bands Set', 'Set of 5 resistance bands with varying tension levels, plus door anchor and handles.', 799.00, 'https://picsum.photos/id/212/600/600', 3, TRUE, 5, NOW());
 
+
+

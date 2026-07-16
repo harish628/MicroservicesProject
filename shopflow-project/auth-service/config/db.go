@@ -1,12 +1,14 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 
 	"auth-service/models"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -42,6 +44,46 @@ func ConnectDatabase() {
 		log.Fatal("Failed to migrate database:", err)
 	}
 
+	ensureDefaultAdminUser(db)
+
 	DB = db
 	log.Println("✅ Database connected and migrated successfully")
+}
+
+func ensureDefaultAdminUser(db *gorm.DB) {
+	var existingUser models.User
+	err := db.Where("email = ?", "admin@shopflow.com").First(&existingUser).Error
+	if err == nil {
+		if existingUser.Role != "admin" {
+			existingUser.Role = "admin"
+			if updateErr := db.Save(&existingUser).Error; updateErr != nil {
+				log.Printf("⚠️ Could not update admin role: %v", updateErr)
+				return
+			}
+		}
+		log.Println("✅ Admin user ready: admin@shopflow.com / admin123")
+		return
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Printf("⚠️ Could not verify admin user: %v", err)
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), 12)
+	if err != nil {
+		log.Fatal("Failed to hash default admin password:", err)
+	}
+
+	admin := models.User{
+		Name:     "Admin",
+		Email:    "admin@shopflow.com",
+		Password: string(hashedPassword),
+		Role:     "admin",
+	}
+
+	if err := db.Create(&admin).Error; err != nil {
+		log.Fatal("Failed to create default admin user:", err)
+	}
+
+	log.Println("✅ Created default admin user: admin@shopflow.com / admin123")
 }
