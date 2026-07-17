@@ -1,0 +1,42 @@
+Issue: MySQL Initialization Script Failed During Docker Compose Startup Problem
+
+While starting the application using docker compose up --build, MySQL failed to initialize and became unhealthy. As a result, dependent microservices could not connect to the database.
+
+Error
+    ERROR 1146 (42S02): Table 'product_db.products' doesn't exist
+    
+Root Cause
+
+The 01-create-databases.sql script was modified to include both:
+
+Database creation
+Product seed data
+
+During MySQL initialization:
+
+product_db was created.
+The script immediately tried to execute:
+ALTER TABLE products ...
+INSERT INTO products ...
+
+However, the products and categories tables had not been created yet because they are created later by the Product Service using GORM AutoMigrate().
+
+Since the tables did not exist, MySQL initialization failed and the container became unhealthy.
+
+Solution
+
+Keep 01-create-databases.sql responsible only for creating databases.
+
+CREATE DATABASE auth_db;
+CREATE DATABASE product_db;
+...
+
+Execute the seed script only after the Product Service has started and created the tables.
+
+Interview Question
+
+Q: Why shouldn't you insert seed data inside MySQL's docker-entrypoint-initdb.d scripts when using GORM AutoMigrate?
+
+Answer:
+
+The scripts in docker-entrypoint-initdb.d execute before application services start. If the application uses GORM AutoMigrate() to create tables, those tables do not exist yet during MySQL initialization. Any INSERT or ALTER TABLE statements will fail because the schema hasn't been created. The correct approach is to create databases during MySQL initialization and seed data only after the application has created the required tables.
