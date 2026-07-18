@@ -59,7 +59,7 @@ pipeline {
         stage('Scan Image Trivy') {
             steps {
                 script{
-                   sh '''
+                  sh '''
                                 images=$(docker compose config --images)
                         
                                 for image in $images
@@ -81,33 +81,30 @@ pipeline {
                 }
             }
         }
-
-        stage('Scan Image Trivy') {
-                    steps {
-                        script{
-                        sh '''
-                                        images=$(docker compose config --images)
-                                
-                                        for image in $images
-                                        do
-                                            echo ""
-                                            echo "==================================="
-                                            echo "Scanning: $image"
-                                            echo "==================================="
-                                
-                                            trivy image \
-                                                --severity HIGH,CRITICAL \
-                                                --ignore-unfixed \
-                                                --no-progress \
-                                                --format json \
-                                                $image
-                                        done
-
-                                '''
+        
+        stage('Push Image') {
+                steps{
+                            withCredentials([usernamePassword(
+                            credentialsId: 'DockerUsername',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        )]) {
+                            sh '''
+                                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                                echo " ------------ ----------------- ----------"
+                                echo " ------------ ----------------- ----------"
+                                echo " ------------ -------PUSH IMAGE---------- ----------"
+                                echo " ------------ ----------------- ----------"
+                                cd $WORKSPACE/shopflow-project && docker compose push
+                            '''
                         }
-                    }
+                }
         }
-
-
+        stage('Deploy') {
+                steps{
+                    sh ''' cd $WORKSPACE/shopflow-project && docker compose up -d '''
+                }
+        }
+        
     }
 }
