@@ -65,7 +65,6 @@ services:
   # ── AUTH SERVICE ─────────────────────────────────────────────────────────
   auth-service:
     build: ./auth-service
-    image: harishgundimeda/shopflow-project-auth-service:latest
     container_name: shopflow-auth-service
     restart: unless-stopped
     environment:
@@ -92,7 +91,6 @@ services:
   # ── PRODUCT SERVICE ──────────────────────────────────────────────────────
   product-service:
     build: ./product-service
-    image: harishgundimeda/shopflow-project-product-service:latest
     container_name: shopflow-product-service
     restart: unless-stopped
     environment:
@@ -116,7 +114,6 @@ services:
   # ── ORDER SERVICE ────────────────────────────────────────────────────────
   order-service:
     build: ./order-service
-    image: harishgundimeda/shopflow-project-order-service:latest
     container_name: shopflow-order-service
     restart: unless-stopped
     environment:
@@ -144,7 +141,6 @@ services:
   # ── PAYMENT SERVICE ──────────────────────────────────────────────────────
   payment-service:
     build: ./payment-service
-    image: harishgundimeda/shopflow-project-payment-service:latest
     container_name: shopflow-payment-service
     restart: unless-stopped
     environment:
@@ -170,7 +166,6 @@ services:
   # ── NOTIFICATION SERVICE ─────────────────────────────────────────────────
   notification-service:
     build: ./notification-service
-    image: harishgundimeda/shopflow-project-notification-service:latest
     container_name: shopflow-notification-service
     restart: unless-stopped
     environment:
@@ -202,7 +197,6 @@ services:
   # It only needs to know where every OTHER service lives.
   api-gateway:
     build: ./api-gateway
-    image: harishgundimeda/shopflow-project-api-gateway:latest
     container_name: shopflow-api-gateway
     restart: unless-stopped
     environment:
@@ -233,7 +227,6 @@ services:
       context: ./frontend
       args:
         REACT_APP_API_URL: http://localhost:8000
-    image: harishgundimeda/shopflow-project-frontend:latest
     container_name: shopflow-frontend
     restart: unless-stopped
     ports:
@@ -247,7 +240,6 @@ services:
   admin-dashboard:
     build: 
       context: ./admin-dashboard
-    image: harishgundimeda/shopflow-project-admin-dashboard:latest
     container_name: shopflow-admin-dashboard
     
     restart: unless-stopped

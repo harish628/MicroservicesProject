@@ -24,7 +24,7 @@
 # the same language's base image.
 
 # ── STAGE 1: BUILD THE STATIC FILES ──────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:20-alpine3.22 AS builder
 
 WORKDIR /app
 
@@ -49,7 +49,7 @@ ENV REACT_APP_API_URL=$REACT_APP_API_URL
 RUN npm run build
 
 # ── STAGE 2: SERVE THE STATIC FILES ──────────────────────────────────────────
-FROM nginx:1.25-alpine
+FROM nginx:1.29-alpine
 
 # Copy ONLY the compiled /build output from Stage 1.
 # Everything else — node_modules, source .js files, the entire Node.js
