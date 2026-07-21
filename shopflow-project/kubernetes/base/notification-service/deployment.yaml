@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: shopflow-notification-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: notification-service
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: shopflow
+      component: notification-service
+
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: notification-service
+
+    spec:
+      containers:
+        - name: notification-service
+          image: harishgundimeda/shopflow-project-notification-service:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8005
+
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+
+            - name: DB_NAME
+              value: notification_db
+
+            - name: PORT
+              value: "8005"
+
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+
+            - name: EMAIL_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_ENABLED
+
+            - name: EMAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_HOST
+
+            - name: EMAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_PORT
+
+            - name: EMAIL_FROM
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_FROM
+
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+
+            - name: EMAIL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: EMAIL_USER
+
+            - name: EMAIL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: EMAIL_PASS
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          readinessProbe:
+            tcpSocket:
+              port: 8005
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          livenessProbe:
+            tcpSocket:
+              port: 8005
+            initialDelaySeconds: 30
+            periodSeconds: 20
