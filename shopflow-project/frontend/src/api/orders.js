@@ -4,19 +4,19 @@ import apiClient from './client';
 
 export const ordersApi = {
   create: (data) =>
-    apiClient.post('/api/orders', data).then(res => res.data),
+    apiClient.post('/orders', data).then(res => res.data),
 
   getMyOrders: () =>
-    apiClient.get('/api/orders/my-orders').then(res => res.data),
+    apiClient.get('/orders/my-orders').then(res => res.data),
 
   getById: (id) =>
-    apiClient.get(`/api/orders/${id}`).then(res => res.data),
+    apiClient.get(`/orders/${id}`).then(res => res.data),
 
   cancel: (id) =>
-    apiClient.put(`/api/orders/${id}/cancel`).then(res => res.data),
+    apiClient.put(`/orders/${id}/cancel`).then(res => res.data),
 };
 
 export const paymentsApi = {
   process: (data) =>
-    apiClient.post('/api/payments', data).then(res => res.data),
+    apiClient.post('/payments', data).then(res => res.data),
 };

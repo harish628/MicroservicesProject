@@ -232,7 +232,7 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_API_URL: ""
+        REACT_APP_API_URL: /api 
     image: harishgundimeda/shopflow-project-frontend:latest
     container_name: shopflow-frontend
     restart: unless-stopped

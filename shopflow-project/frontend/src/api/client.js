@@ -17,7 +17,7 @@
 import axios from 'axios';
 
 // REACT_APP_API_URL points to the API Gateway — the ONLY backend URL we know
-const API_URL = process.env.REACT_APP_API_URL || '';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Commenting below to mitigate CORS issues when running frontend and backend on different ports during development.
 const apiClient = axios.create({
