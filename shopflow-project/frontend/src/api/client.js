@@ -16,8 +16,13 @@
 
 import axios from 'axios';
 
-// REACT_APP_API_URL points to the API Gateway — the ONLY backend URL we know
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// In Kubernetes with ingress, the browser should call the API through the same
+// host that serves the frontend. We use the current origin by default, and only
+// fall back to localhost:8000 for local development/Compose.
+const API_URL = process.env.REACT_APP_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? window.location.origin
+    : 'http://localhost:8000');
 
 // Commenting below to mitigate CORS issues when running frontend and backend on different ports during development.
 const apiClient = axios.create({

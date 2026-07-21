@@ -31,6 +31,10 @@ spec:
           ports:
             - containerPort: 80
 
+          env:
+            - name: REACT_APP_API_URL
+              value: ""
+
           resources:
             requests:
               cpu: "100m"
