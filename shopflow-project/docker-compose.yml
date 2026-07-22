@@ -212,7 +212,7 @@ services:
       ORDER_SERVICE_URL: http://order-service:8003
       PAYMENT_SERVICE_URL: http://payment-service:8004
       NOTIFICATION_SERVICE_URL: http://notification-service:8005
-      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:4200
+      ALLOWED_ORIGINS: http://a1c88f799a8c748b5b08a64c8cfe9a06-bb88bb15dced509b.elb.ap-south-1.amazonaws.com
     ports:
       - "8000:8000"
     networks:

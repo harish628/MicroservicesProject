@@ -12,8 +12,10 @@ resources:
   - storage/persistent-volume-claim.yaml
 
   - mysql/mysql-init-configmap.yaml
+  - mysql/seed-products-configmap.yaml
   - mysql/service.yaml
   - mysql/statefulset.yaml
+  - mysql/seed-products-job.yaml
 
   - auth-service/service.yaml
   - auth-service/deployment.yaml

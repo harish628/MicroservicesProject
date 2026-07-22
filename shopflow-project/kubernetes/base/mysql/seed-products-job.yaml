@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-seed-products
+  namespace: shopflow
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: mysql-seed-products
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed-products
+          image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Waiting for MySQL to accept connections..."
+              for i in $(seq 1 30); do
+                mysql --host=mysql --user=root --password="$MYSQL_ROOT_PASSWORD" -e 'SELECT 1' >/dev/null 2>&1 && break
+                echo "MySQL not ready yet, retrying... ($i/30)"
+                sleep 5
+              done
+
+              echo "Executing product seed script"
+              mysql --host=mysql --user=root --password="$MYSQL_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/02-seed-products.sql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: mysql-init-script
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-init-script
+          configMap:
+            name: mysql-seed-products-script
