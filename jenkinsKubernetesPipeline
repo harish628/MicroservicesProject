@@ -1,0 +1,93 @@
+pipeline {
+    agent any
+    environment {
+         KUBECONFIG = "/var/lib/jenkins/.kube/config"
+    }
+    stages {
+        stage('Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/harish628/MicroservicesProject.git'
+            }
+        }
+        stage('Debug Kubeconfig') {
+            steps {
+                sh '''
+                whoami
+                echo "HOME=$HOME"
+                echo "KUBECONFIG=$KUBECONFIG"
+        
+                kubectl config current-context
+                kubectl auth whoami
+                kubectl auth can-i create namespaces
+                '''
+            }
+        }
+        stage('Initialize Ingress LB') {
+                steps{
+                    sh ''' 
+                        cd $WORKSPACE/shopflow-project
+                        kubectl create namespace ingress-nginx
+                        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+                        sleep 200
+                        kubectl get pods -n ingress-nginx
+                        kubectl get svc -n ingress-nginx
+                    
+                    '''
+                }
+        }
+        stage('GET LB') {
+                steps{
+                        script {
+                                    env.INGRESS_LB = sh(
+                                        script: """
+                                            kubectl get svc ingress-nginx-controller \
+                                            -n ingress-nginx \
+                                            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+                                        """,
+                                        returnStdout: true
+                                    ).trim()
+                        
+                                    echo "Ingress LoadBalancer: ${env.INGRESS_LB}"
+                        }
+                }
+        }
+        stage('UpdateConfig') {
+            steps {
+                     script {
+                                sh """
+                                    echo $WORKSPACE/shopflow-project/kubernetes/base/config/configmap.yaml
+                                    sed -i "s|^  ALLOWED_ORIGINS:.*|  ALLOWED_ORIGINS: http://${env.INGRESS_LB}|" $WORKSPACE/shopflow-project/kubernetes/base/config/configmap.yaml
+                    
+                                    echo "Updated ConfigMap:"
+                                    grep ALLOWED_ORIGINS $WORKSPACE/shopflow-project/kubernetes/base/config/configmap.yaml
+                                """
+                     }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                     script {
+                                sh """
+                                     kubectl kustomize $WORKSPACE/shopflow-project/kubernetes/base/
+                                     kubectl apply --dry-run=client -k $WORKSPACE/shopflow-project/kubernetes/base
+                                     kubectl apply -k $WORKSPACE/shopflow-project/kubernetes/base
+                                     sleep 60
+                                     echo '-----------------------------------------------------'
+                                     echo '-------------------- All Services -------------------'
+                                     echo '-----------------------------------------------------'
+                                     kubectl get all -n shopflow
+                                     echo '-----------------------------------------------------'
+                                     echo '-------------------- PODS STATUS -------------------'
+                                     echo '-----------------------------------------------------'
+                                     kubectl get pods -n shopflow
+                                     
+                                    """
+                     }
+            }
+        }
+        
+        
+    }
+}
+
