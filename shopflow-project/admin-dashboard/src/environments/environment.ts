@@ -6,5 +6,5 @@
 
 export const environment = {
   production: false,
-  apiUrl: '/api',  // The API Gateway — our ONLY backend address
+  apiUrl: '',  // Use the current host/origin and let Angular append /api
 };
