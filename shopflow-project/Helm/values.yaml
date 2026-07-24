@@ -1,0 +1,185 @@
+namespace: shopflow
+nameOverride: ""
+fullnameOverride: "shopflow"
+
+appLabels:
+  app: shopflow
+  app.kubernetes.io/name: shopflow
+  app.kubernetes.io/part-of: shopflow-project
+
+config:
+  dbHost: mysql
+  dbPort: "3306"
+  authServicePort: "8001"
+  productServicePort: "8002"
+  orderServicePort: "8003"
+  paymentServicePort: "8004"
+  notificationServicePort: "8005"
+  apiGatewayPort: "8000"
+  authDbName: auth_db
+  productDbName: product_db
+  orderDbName: order_db
+  paymentDbName: payment_db
+  notificationDbName: notification_db
+  authServiceUrl: http://auth-service:8001
+  productServiceUrl: http://product-service:8002
+  orderServiceUrl: http://order-service:8003
+  paymentServiceUrl: http://payment-service:8004
+  notificationServiceUrl: http://notification-service:8005
+  jwtExpiryHours: "24"
+  paymentSuccessRate: "0.95"
+  emailEnabled: "false"
+  emailHost: smtp.gmail.com
+  emailPort: "587"
+  emailFrom: ShopFlow <noreply@shopflow.com>
+  allowedOrigins: http://a15ef2bc4921744f6833e40225f8824c-39598065e4c47b77.elb.ap-south-1.amazonaws.com
+
+secret:
+  mysqlRootPassword: root
+  dbUser: root
+  dbPassword: root
+  jwtSecret: Z+bqADXEvM1dl03DVsWm4uznbttNqZyFwjNs6OlkMDE=
+  emailUser: ""
+  emailPass: ""
+
+persistence:
+  storageClassName: kops-csi-1-21
+  size: 5Gi
+
+mysql:
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+authService:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-auth-service
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+productService:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-product-service
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8002
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+orderService:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-order-service
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8003
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+paymentService:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-payment-service
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8004
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+notificationService:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-notification-service
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8005
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+apiGateway:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-api-gateway
+    tag: latest
+    pullPolicy: Always
+  containerPort: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-frontend
+    tag: latest
+    pullPolicy: Always
+  containerPort: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+adminDashboard:
+  replicaCount: 2
+  image:
+    repository: harishgundimeda/shopflow-project-admin-dashboard
+    tag: latest
+    pullPolicy: Always
+  containerPort: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: nginx

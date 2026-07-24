@@ -1,0 +1,129 @@
+---
+# Source: shopflow/templates/mysql.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: mysql
+spec:
+  clusterIP: None
+  selector:
+    app: shopflow
+    component: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+      protocol: TCP
+---
+# Source: shopflow/templates/mysql.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: shopflow-mysql
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: mysql
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopflow
+      component: mysql
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-init-script
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 60
+            periodSeconds: 20
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+        - name: mysql-init-script
+          configMap:
+            name: mysql-init-script
+---
+# Source: shopflow/templates/mysql.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-seed-products
+  namespace: shopflow
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: mysql-seed-products
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: seed-products
+          image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Waiting for MySQL to accept connections..."
+              for i in $(seq 1 30); do
+                mysql --host=mysql --user=root --password="$MYSQL_ROOT_PASSWORD" -e 'SELECT 1' >/dev/null 2>&1 && break
+                echo "MySQL not ready yet, retrying... ($i/30)"
+                sleep 5
+              done
+              echo "Executing product seed script"
+              mysql --host=mysql --user=root --password="$MYSQL_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/02-seed-products.sql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: mysql-init-script
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-init-script
+          configMap:
+            name: mysql-seed-products-script
+

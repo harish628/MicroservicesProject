@@ -1,0 +1,705 @@
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-dashboard
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: admin-dashboard
+spec:
+  selector:
+    app: shopflow
+    component: admin-dashboard
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: api-gateway
+spec:
+  selector:
+    app: shopflow
+    component: api-gateway
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: auth-service
+spec:
+  selector:
+    app: shopflow
+    component: auth-service
+  ports:
+    - port: 8001
+      targetPort: 8001
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: frontend
+spec:
+  selector:
+    app: shopflow
+    component: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: notification-service
+spec:
+  selector:
+    app: shopflow
+    component: notification-service
+  ports:
+    - port: 8005
+      targetPort: 8005
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: order-service
+spec:
+  selector:
+    app: shopflow
+    component: order-service
+  ports:
+    - port: 8003
+      targetPort: 8003
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: payment-service
+spec:
+  selector:
+    app: shopflow
+    component: payment-service
+  ports:
+    - port: 8004
+      targetPort: 8004
+  type: ClusterIP
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: product-service
+spec:
+  selector:
+    app: shopflow
+    component: product-service
+  ports:
+    - port: 8002
+      targetPort: 8002
+  type: ClusterIP
+
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-admin-dashboard
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: admin-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: admin-dashboard
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: admin-dashboard
+    spec:
+      containers:
+        - name: admin-dashboard
+          image: harishgundimeda/shopflow-project-admin-dashboard:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-api-gateway
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: api-gateway
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: harishgundimeda/shopflow-project-api-gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PORT
+              value: "8000"
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+            - name: PRODUCT_SERVICE_URL
+              value: "http://product-service:8002"
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service:8003"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment-service:8004"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service:8005"
+            - name: ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: ALLOWED_ORIGINS
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-auth-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: auth-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: auth-service
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: harishgundimeda/shopflow-project-auth-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+            - name: DB_NAME
+              value: auth_db
+            - name: PORT
+              value: "8001"
+            - name: JWT_EXPIRY_HOURS
+              value: "24"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: JWT_SECRET
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-frontend
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: harishgundimeda/shopflow-project-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: REACT_APP_API_URL
+              value: ""
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-notification-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: notification-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: notification-service
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: harishgundimeda/shopflow-project-notification-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8005
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+            - name: DB_NAME
+              value: notification_db
+            - name: PORT
+              value: "8005"
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+            - name: EMAIL_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_ENABLED
+            - name: EMAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_HOST
+            - name: EMAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_PORT
+            - name: EMAIL_FROM
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: EMAIL_FROM
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+            - name: EMAIL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: EMAIL_USER
+            - name: EMAIL_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: EMAIL_PASS
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8005
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8005
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-order-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: order-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: order-service
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: harishgundimeda/shopflow-project-order-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8003
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+            - name: DB_NAME
+              value: order_db
+            - name: PORT
+              value: "8003"
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+            - name: PRODUCT_SERVICE_URL
+              value: "http://product-service:8002"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service:8005"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8003
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8003
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-payment-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: payment-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: payment-service
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: payment-service
+    spec:
+      containers:
+        - name: payment-service
+          image: harishgundimeda/shopflow-project-payment-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8004
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+            - name: DB_NAME
+              value: payment_db
+            - name: PORT
+              value: "8004"
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service:8003"
+            - name: PAYMENT_SUCCESS_RATE
+              value: "0.95"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8004
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8004
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+# Source: shopflow/templates/services.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-product-service
+  namespace: shopflow
+  labels:
+    app: shopflow
+    component: product-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopflow
+      component: product-service
+  template:
+    metadata:
+      labels:
+        app: shopflow
+        component: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: harishgundimeda/shopflow-project-product-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8002
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: shopflow-config
+                  key: DB_PORT
+            - name: DB_NAME
+              value: product_db
+            - name: PORT
+              value: "8002"
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service:8001"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shopflow-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8002
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8002
+            initialDelaySeconds: 30
+            periodSeconds: 20

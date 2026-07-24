@@ -1,0 +1,34 @@
+---
+# Source: shopflow/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopflow-config
+  namespace: shopflow
+data:
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  AUTH_SERVICE_PORT: "8001"
+  PRODUCT_SERVICE_PORT: "8002"
+  ORDER_SERVICE_PORT: "8003"
+  PAYMENT_SERVICE_PORT: "8004"
+  NOTIFICATION_SERVICE_PORT: "8005"
+  API_GATEWAY_PORT: "8000"
+  AUTH_DB_NAME: "auth_db"
+  PRODUCT_DB_NAME: "product_db"
+  ORDER_DB_NAME: "order_db"
+  PAYMENT_DB_NAME: "payment_db"
+  NOTIFICATION_DB_NAME: "notification_db"
+  AUTH_SERVICE_URL: "http://auth-service:8001"
+  PRODUCT_SERVICE_URL: "http://product-service:8002"
+  ORDER_SERVICE_URL: "http://order-service:8003"
+  PAYMENT_SERVICE_URL: "http://payment-service:8004"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8005"
+  JWT_EXPIRY_HOURS: "24"
+  PAYMENT_SUCCESS_RATE: "0.95"
+  EMAIL_ENABLED: "false"
+  EMAIL_HOST: "smtp.gmail.com"
+  EMAIL_PORT: "587"
+  EMAIL_FROM: "ShopFlow <noreply@shopflow.com>"
+  ALLOWED_ORIGINS: "http://a15ef2bc4921744f6833e40225f8824c-39598065e4c47b77.elb.ap-south-1.amazonaws.com"
+

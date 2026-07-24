@@ -1,0 +1,10 @@
+---
+# Source: shopflow/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shopflow
+  labels:
+    app.kubernetes.io/name: shopflow
+    app.kubernetes.io/part-of: shopflow-project
+
