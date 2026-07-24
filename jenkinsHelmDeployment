@@ -1,0 +1,106 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('CODE') {
+            steps {
+            sh '''
+                        rm -rf MicroservicesProject Helm kubernetes
+                        
+                        git clone --filter=blob:none --no-checkout https://github.com/harish628/MicroservicesProject.git
+
+                        cd MicroservicesProject
+            
+                        git sparse-checkout init --cone
+                        git sparse-checkout set shopflow-project/Helm \
+                                                shopflow-project/kubernetes
+            
+                        git checkout main
+            
+                        mv $WORKSPACE/MicroservicesProject/shopflow-project/Helm "$WORKSPACE/"
+                        mv $WORKSPACE/MicroservicesProject/shopflow-project/kubernetes "$WORKSPACE/"
+                        
+                        cd "$WORKSPACE"
+                        rm -rf MicroservicesProject
+            
+                        echo "Workspace contents:"
+                        tree -L 2
+                '''
+            }
+        }
+        stage('Initialize Ingress LB') {
+                steps{
+                    
+                    sh ''' 
+                        cd $WORKSPACE
+                        kubectl create namespace ingress-nginx
+                        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml
+                        sleep 200
+                        kubectl get pods -n ingress-nginx
+                        kubectl get svc -n ingress-nginx
+                    
+                    '''
+                }
+                            
+        }
+        stage('GET LB') {
+                            steps{
+                                    script {
+                                                env.INGRESS_LB = sh(
+                                                    script: """
+                                                        kubectl get svc ingress-nginx-controller \
+                                                        -n ingress-nginx \
+                                                        -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+                                                    """,
+                                                    returnStdout: true
+                                                ).trim()
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                                echo "Ingress LoadBalancer: ${env.INGRESS_LB}"
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                                echo "---------------------------------------------------"
+                                    }
+                }
+        }
+        stage('UpdateConfig') {
+            steps {
+                     script {
+                                sh """
+                                    echo $WORKSPACE/Helm/values.yaml
+                                        sed -i "s|^[[:space:]]*allowedOrigins:.*|  allowedOrigins: http://${env.INGRESS_LB}|" $WORKSPACE/Helm/values.yaml
+
+                                    grep allowedOrigins $WORKSPACE/Helm/values.yaml
+                                    echo "Updated ConfigMap:"
+                                    
+									
+                                """
+                     }
+            }
+        }
+        stage('DEPLOY') {
+            steps {
+                    dir('Helm') {
+                        sh '''
+                            helm upgrade --install shopflow . \
+                              --namespace shopflow \
+                             
+                              
+                            sleep 60
+                            
+                            helm list -A
+                            
+                            helm status shopflow -n shopflow
+                            
+                            sleep 300
+                            
+                            kubectl get pods -n shopflow
+                        '''
+                    }
+            }
+        }
+    }
+}

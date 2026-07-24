@@ -30,6 +30,10 @@ const healthRoutes   = require('./routes/healthRoutes');
 const app  = express();
 const PORT = process.env.PORT || 8000;
 
+// AWS Load Balancer adds X-Forwarded-For header.
+// Required for express-rate-limit to identify real client IP.
+app.set('trust proxy', 1);
+
 // ── Security Headers ─────────────────────────────────────────────────────────
 // helmet() sets various HTTP headers to protect against common attacks
 // (XSS, clickjacking, MIME sniffing etc.)
